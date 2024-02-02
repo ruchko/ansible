@@ -1,0 +1,45 @@
+{%if device.cf.asn is defined %}{%else%}# BGP AS in Custom Fields of the Device is missing{% endif %}
+{%if device.cf.router_id is defined %}{%else%}# Router ID in Custom Fields of the Device is missing{% endif %}
+{%if asn is defined %}# BGP AS in Config Context is missing{% endif %}
+hostname {{ device.name }}
+!
+username cisco password cisco
+!
+!
+{% for interface in device.interfaces.all() %}!
+interface {{ interface.name }}
+{% if interface.enabled==True %} no shutdown{% else %} shutdown{% endif %}{% for ip in interface.ip_addresses.all() %}
+ ip address {{ ip.address.ip }} {{ ip.address.netmask }}{% endfor %}
+{% if interface.cf.role=="int-backbone"%} mpls ip
+ ip ospf {{ device.cf.asn }} area 0
+ ip ospf network point-to-point{% endif %}
+ lldp transmit
+ lldp receive
+{% endfor %}!
+router bgp {{ asn }}
+{%if device.cf.router_id is defined %} bgp router-id {{device.cf.router_id}} {%endif%}
+{% for tag in device.tags.all() %} # tag: {{tag.name}}
+{% if tag.name=="route_reflector" %}bgp log-neighbor-changes
+ bgp listen range 0.0.0.0/0 peer-group RR-CLIENT
+ neighbor RR-CLIENT peer-group
+ neighbor RR-CLIENT remote-as 65000
+ neighbor RR-CLIENT route-reflector-client
+ neighbor RR-CLIENT soft-reconfiguration inbound
+ address-family vpnv4
+  neighbor RR-CLIENT activate
+  neighbor RR-CLIENT send-community both
+ exit-address-family
+{%endif%}
+{% if tag.name=="route_reflector_client" %} neighbor RR peer-group
+ neighbor RR remote-as {{asn}}
+ neighbor RR update-source Loopback0
+{% for rr in route_reflectors %} neighbor {{rr}} peer-group RR
+{% endfor %} address-family vpnv4
+  neighbor RR send-community both
+{% for rr in route_reflectors %}  neighbor {{rr}} activate
+{% endfor %} 
+ !
+{% endif %}
+{% endfor %}
+
+end
