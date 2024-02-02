@@ -1,0 +1,33 @@
+{% if ansible_network_os == "ios" %}
+username test privilege 15 password test
+!
+aaa new-model
+aaa authentication login default local none
+aaa authorization exec default local none 
+!
+hostname {{inventory_hostname|upper}}
+!
+ip cef
+!
+ip vrf MANAGEMENT
+!
+no ip domain-lookup
+!
+ip domain-name testdomain
+!
+crypto key generate rsa modulus 2048
+ip ssh version 2
+!
+interface Loopback0
+ description ROUTER-ID
+ ip address {{router_loopback}} 255.255.255.255
+ ip ospf 1000 area 0
+!
+interface Ethernet1/3
+  ip vrf forwarding MANAGEMENT
+  ip address {{mgmt_addr}} 255.255.255.0
+!
+line vty 0 4
+ transport input ssh
+
+{% endif %}

@@ -1,0 +1,42 @@
+[ios]
+iou01 mgmt_loopback=10.0.0.1
+iou02 mgmt_loopback=10.0.0.2
+iou03 mgmt_loopback=10.0.0.3
+
+
+[ios:vars]
+ansible_network_os=ios
+syslog_server=10.4.4.4
+
+[eos]
+eos01
+eos02
+
+[eos:vars]
+ansible_network_os=eos
+tacacs_server=10.2.2.2
+
+[junos]
+junos01
+junos02
+
+[junos:vars]
+ansible_network_os=junos
+syslog_server=10.3.3.3
+
+
+[all:vars]
+ansible_connection=ansible.netcommon.network_cli
+ansible_user=test
+ansible_ssh_pass=test
+
+[demolab]
+P1  router_loopback=10.0.0.1  mgmt_addr=192.168.1.201 lldp_mpls=true
+PE2 router_loopback=10.0.0.2  mgmt_addr=192.168.1.202 lldp_mpls=true
+PE3 router_loopback=10.0.0.3  mgmt_addr=192.168.1.203 lldp_mpls=true
+PE4 router_loopback=10.0.0.4  mgmt_addr=192.168.1.204 lldp_mpls=true
+PE5 router_loopback=10.0.0.5  mgmt_addr=192.168.1.205 lldp_mpls=true
+CE6 router_loopback=10.0.0.6  mgmt_addr=192.168.1.206 
+CE7 router_loopback=10.0.0.7  mgmt_addr=192.168.1.207 
+[demolab:vars]
+ansible_network_os=ios

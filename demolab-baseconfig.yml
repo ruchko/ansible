@@ -1,0 +1,12 @@
+---
+- name: DEMO LAB. Base configuration files.
+  hosts: demolab
+  connection: ssh
+  gather_facts: false
+
+  tasks:
+    - name: Prepare baseline configuration files.
+      ansible.builtin.template:
+        src: demolab-baseconfig.j2
+        dest: out/{{ inventory_hostname}}_baseconfig.txt
+      
